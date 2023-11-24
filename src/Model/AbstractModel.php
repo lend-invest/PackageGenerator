@@ -17,6 +17,7 @@ use WsdlToPhp\PackageGenerator\Generator\Utils as GeneratorUtils;
 abstract class AbstractModel extends AbstractGeneratorAware implements \JsonSerializable
 {
     public const META_DOCUMENTATION = 'documentation';
+    public const META_SCHEMA_TARGET_NAMESPACE = 'schemaTargetNamespace';
 
     /**
      * Original name of the element.

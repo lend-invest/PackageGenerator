@@ -211,7 +211,7 @@ class Struct extends AbstractModelFile
     {
         $method
             ->addChild(sprintf('parent::%s();', self::METHOD_WRAP))
-            ->addChild(sprintf('return new \SoapVar($this, SOAP_ENC_OBJECT, \'%s\', \'%s\');', $this->getModel()->getPackagedName(), 'http://schemas.datacontract.org/2004/07/AccountBusinessModel.BusinessEntities'));
+            ->addChild(sprintf('return new \SoapVar($this, SOAP_ENC_OBJECT, \'%s\', \'%s\');', $this->getModel()->getName(), $this->getModel()->getMetaValue(AbstractModel::META_SCHEMA_TARGET_NAMESPACE)));
 
         return $this;
     }
