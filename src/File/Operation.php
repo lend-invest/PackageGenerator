@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace WsdlToPhp\PackageGenerator\File;
 
+use WsdlToPhp\PackageGenerator\Model\Struct as StructModel;
 use WsdlToPhp\PhpGenerator\Element\PhpFunctionParameter;
 use WsdlToPhp\PhpGenerator\Element\PhpMethod;
 
@@ -67,6 +68,7 @@ final class Operation extends AbstractOperation
         $resultVariableName = sprintf('$result%s', ucfirst($this->getMethod()->getCleanName(false)));
         $method
             ->addChild('try {')
+            ->addChild($this->getParametersWrap($method))
             ->addChild($method->getIndentedString(sprintf('$this->setResult(%s = $this->getSoapClient()->%s%s));', $resultVariableName, $this->getSoapCallName(), $this->getOperationCallParameters($method)), 1))
             ->addChild('')
             ->addChild($method->getIndentedString(sprintf('return %s;', $resultVariableName), 1))
@@ -83,6 +85,29 @@ final class Operation extends AbstractOperation
     protected function getSoapCallName(): string
     {
         return sprintf('%s(\'%s\'%s', self::SOAP_CALL_NAME, $this->getMethod()->getName(), $this->getOperationCallParametersStarting());
+    }
+
+    protected function getParametersWrap(PhpMethod $method): string
+    {
+        $wrappedParameters = [];
+        $passedParameters = $this->getMethod()->getParameterType();
+        if (!is_array($passedParameters)) {
+            return '';
+        }
+        foreach ($method->getParameters() as $parameter) {
+            if (!$parameter instanceof PhpFunctionParameter) {
+                continue;
+            }
+            $passedParameterType = $passedParameters[$parameter->getName()] ?? null;
+            $model = $this->getGenerator()->getStructByName($passedParameterType);
+            if (!$model instanceof StructModel) {
+                continue;
+            }
+            $untypedParameter = $this->getUntypedParameterName($parameter);
+            $wrappedParameters[] = $method->getIndentedString(sprintf('%s = %s->wrap();', $untypedParameter, $untypedParameter), 1);
+        }
+
+        return implode(PhpMethod::BREAK_LINE_CHAR, $wrappedParameters);
     }
 
     protected function getOperationCallParameters(PhpMethod $method): string
@@ -111,9 +136,15 @@ final class Operation extends AbstractOperation
 
     protected function getOperationCallParameterName(PhpFunctionParameter $parameter, PhpMethod $method): string
     {
+        return sprintf('%s%s', PhpMethod::BREAK_LINE_CHAR, $method->getIndentedString(sprintf('%s,', $this->getUntypedParameterName($parameter)), 1));
+    }
+
+    protected function getUntypedParameterName(PhpFunctionParameter $parameter): string
+    {
         $cloneParameter = clone $parameter;
         $cloneParameter->setType(null);
 
-        return sprintf('%s%s', PhpMethod::BREAK_LINE_CHAR, $method->getIndentedString(sprintf('%s,', $cloneParameter->getPhpDeclaration()), 1));
+        return $cloneParameter->getPhpDeclaration();
     }
+
 }
