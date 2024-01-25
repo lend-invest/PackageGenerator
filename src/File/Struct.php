@@ -120,6 +120,7 @@ class Struct extends AbstractModelFile
     {
         $this
             ->addStructMethodConstruct()
+            ->addStructMethodWrap()
             ->addStructMethodsSetAndGet()
         ;
     }
@@ -193,6 +194,26 @@ class Struct extends AbstractModelFile
         } catch (\InvalidArgumentException $exception) {
             throw new \InvalidArgumentException(sprintf('Unable to create function parameter for struct "%s" with type "%s" for attribute "%s"', $this->getModel()->getName(), var_export($this->getStructAttributeTypeAsPhpType($attribute), true), $attribute->getName()), __LINE__, $exception);
         }
+    }
+
+    protected function addStructMethodWrap(): self
+    {
+        if ($this->getModel()->getInheritance()) {
+            $method = new PhpMethod(self::METHOD_WRAP, [], self::TYPE_MIXED);
+            $this->addStructMethodWrapBody($method);
+            $this->methods->add($method);
+        }
+
+        return $this;
+    }
+
+    protected function addStructMethodWrapBody(PhpMethod $method): self
+    {
+        $method
+            ->addChild(sprintf('parent::%s();', self::METHOD_WRAP))
+            ->addChild(sprintf('return new \SoapVar($this, SOAP_ENC_OBJECT, \'%s\', \'%s\');', $this->getModel()->getName(), $this->getModel()->getMetaValue(AbstractModel::META_SCHEMA_TARGET_NAMESPACE)));
+
+        return $this;
     }
 
     protected function addStructMethodsSetAndGet(): self

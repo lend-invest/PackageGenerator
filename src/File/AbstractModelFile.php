@@ -34,10 +34,12 @@ abstract class AbstractModelFile extends AbstractFile
     public const ANNOTATION_SEE = 'see';
     public const ANNOTATION_THROWS = 'throws';
     public const METHOD_CONSTRUCT = '__construct';
+    public const METHOD_WRAP = 'wrap';
     public const TYPE_ARRAY = 'array';
     public const TYPE_BOOL = 'bool';
     public const TYPE_STRING = 'string';
     public const TYPE_SELF = 'self';
+    public const TYPE_MIXED = 'mixed';
 
     protected Method $methods;
 
