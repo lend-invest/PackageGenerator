@@ -113,6 +113,10 @@ abstract class AbstractModel extends AbstractGeneratorAware implements \JsonSeri
         return $this;
     }
 
+    /**
+     * @param mixed $metaValue
+     * @throws \InvalidArgumentException
+     */
     public function addMeta(string $metaName, $metaValue): self
     {
         if (!is_scalar($metaName) || (!is_scalar($metaValue) && !is_array($metaValue))) {
@@ -307,6 +311,9 @@ abstract class AbstractModel extends AbstractGeneratorAware implements \JsonSeri
         return $keyword;
     }
 
+    /**
+     * @throws \InvalidArgumentException
+     */
     public function getReservedMethodsInstance(): AbstractReservedWord
     {
         throw new \InvalidArgumentException(sprintf('The method %s should be defined in the class %s', __FUNCTION__, static::class));
@@ -427,7 +434,7 @@ abstract class AbstractModel extends AbstractGeneratorAware implements \JsonSeri
      * Static method which returns a unique name case sensitively
      * Useful to name methods case sensitively distinct, see http://the-echoplex.net/log/php-case-sensitivity.
      *
-     * @param string $name    the original name
+     * @param string $name the original name
      * @param string $context the context where the name is needed unique
      */
     protected static function uniqueName(string $name, string $context): string
@@ -455,6 +462,9 @@ abstract class AbstractModel extends AbstractGeneratorAware implements \JsonSeri
      */
     abstract protected function toJsonSerialize(): array;
 
+    /**
+     * @throws \InvalidArgumentException
+     */
     protected static function checkSerializedJson(array $args): void
     {
         if (!array_key_exists('__CLASS__', $args)) {

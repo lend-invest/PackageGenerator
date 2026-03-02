@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 4.1.15 - 2026-02-21
+- Fix workflows actions versions
+
+## 4.1.14 - 2026-02-21
+- issue #332, pr #333 - PHP 8.4: Implicitly nullable parameter deprecated in generator code
+
+## 4.1.13 - 2024-06-21
+- issue #312, pr #313 - Invalid getter and annotation for nullable property
+
+## 4.1.12 - 2024-04-13
+- issue #308, pr #309 - Symfony 7 / added support for symfony 7
+
 ## 4.1.11 - 2023-10-18
 - issue #304, pr #305 - Override required PHP version in composer.json
 

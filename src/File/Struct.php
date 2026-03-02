@@ -29,6 +29,9 @@ use WsdlToPhp\PhpGenerator\Element\PhpProperty;
 
 class Struct extends AbstractModelFile
 {
+    /**
+     * @throws \InvalidArgumentException
+     */
     public function setModel(AbstractModel $model): self
     {
         if (!$model instanceof StructModel) {
@@ -167,6 +170,9 @@ class Struct extends AbstractModelFile
         return $parametersValues;
     }
 
+    /**
+     * @throws \InvalidArgumentException
+     */
     protected function getStructMethodParameter(StructAttributeModel $attribute): PhpFunctionParameter
     {
         switch (true) {
@@ -177,7 +183,7 @@ class Struct extends AbstractModelFile
                 break;
 
             default:
-                $type = (($attribute->isRequired() && !$attribute->isNullable()) ? '' : '?').$this->getStructAttributeTypeAsPhpType($attribute);
+                $type = $this->getStructAttributeTypeAsPhpType($attribute);
 
                 break;
         }
@@ -187,7 +193,7 @@ class Struct extends AbstractModelFile
 
             return new PhpFunctionParameter(
                 lcfirst($attribute->getUniqueString($attribute->getCleanName(), 'method')),
-                $attribute->isRequired() && !$attribute->isAChoice() ? AssignedValueElementInterface::NO_VALUE : (str_contains($type ?? '', '?') ? $defaultValue ?? null : $defaultValue),
+                $attribute->isRequired() && !$attribute->isAChoice() ? AssignedValueElementInterface::NO_VALUE : (($attribute->isRequired() && !$attribute->isNullable()) ? $defaultValue ?? null : $defaultValue),
                 $type,
                 $attribute
             );
@@ -368,17 +374,16 @@ class Struct extends AbstractModelFile
 
     protected function addStructMethodGet(StructAttributeModel $attribute): self
     {
-        switch (true) {
-            // it can either be a string, a DOMDocument or null...
-            case $attribute->isXml():
-                $returnType = '';
-
-                break;
-
-            default:
-                $returnType = (!$attribute->getRemovableFromRequest() && !$attribute->isAChoice() && $attribute->isRequired() ? '' : '?').$this->getStructAttributeTypeAsPhpType($attribute);
-
-                break;
+        // it can either be a string, a DOMDocument or null...
+        if ($attribute->isXml()) {
+            $returnType = '';
+        } else {
+            $returnType = (
+                !$attribute->getRemovableFromRequest()
+                && !$attribute->isAChoice()
+                && $attribute->isRequired()
+                && !$attribute->isNullable() ? '' : '?'
+            ).$this->getStructAttributeTypeAsPhpType($attribute);
         }
 
         $method = new PhpMethod(
